@@ -1,0 +1,4 @@
+secrets
+output
+*.sublime-workspace
+src/unencrypted-sql/*

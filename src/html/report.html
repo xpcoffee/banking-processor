@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <!-- Load the Google charts AJAX API -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <!-- Load AWS SDK -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.12.min.js"></script>
+
+  <!-- Charting -->
+  <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+
+      /* This function triggers the charting process */
+      function createReport() {
+          console.log('Creating Report.');
+          /* Set a callback to run when the Google Visualization API is loaded. */
+          google.charts.setOnLoadCallback(plotCharts());
+      }
+
+      function plotCharts() {
+          plotBalance();
+          plotBreakdown();
+      }
+
+      function plotBalance() {
+          var balanceFileName = 'balance.csv';
+          getS3File(balanceFileName, drawBalance);
+      }
+
+      function plotBreakdown() {
+          var breakdownFileName = 'breakdown.csv';
+          getS3File(breakdownFileName, drawBreakdown);
+      }
+
+      function drawBalance(balanceData) {
+          console.log('Drawing balance chart...');
+          var dataArray = [['']];
+          for (var line of balanceData) {
+              if (line.startsWith('balance')) {
+                  addAmountValues(dataArray, line.split(','));
+              } else if (line.startsWith('date')) {
+                  addDateValues(dataArray, line.split(','));
+              }
+          }
+          var data = google.visualization.arrayToDataTable(dataArray);
+          drawLineChart(data,'Balance');
+      }
+
+      function drawBreakdown(breakdownData) {
+          console.log('Drawing breakdown chart...');
+          var dataArray = [['']];
+          for (var line of breakdownData) {
+              if (line.startsWith('month')) {
+                  addDateValues(dataArray, line.split(','));
+              } else {
+                  addAmountValues(dataArray, line.split(','));
+              }
+          }
+          var data = google.visualization.arrayToDataTable(dataArray);
+          drawColumnChart(data,'Breakdown');
+      }
+
+      function addDateValues(dataArray, values) {
+          /* place date as first header */
+          dataArray[0][0] = {label: values[0], type: 'datetime'};
+          for (var i = 1 ; i < values.length; i++) {
+              var value = new Date(values[i]);
+              if(typeof dataArray[i] === 'undefined') {
+                  var newArray = [value];
+                  dataArray.push(newArray);
+              } else {
+                  /* place date as first value */
+                  dataArray[i][0] = value;
+              }
+          }
+      }
+
+      function addDateStrings(dataArray, values) {
+          /* place date as first header */
+          dataArray[0][0] = {label: values[0], type: 'datetime'};
+          for (var i = 1 ; i < values.length; i++) {
+              var value = values[i];
+              if(typeof dataArray[i] === 'undefined') {
+                  var newArray = [value];
+                  dataArray.push(newArray);
+              } else {
+                  /* place date as first value */
+                  dataArray[i][0] = value;
+              }
+          }
+      }
+
+      function addAmountValues(dataArray, values) {
+          dataArray[0].push({label: values[0], type: 'number'});
+
+          for (var i = 1 ; i < values.length; i++) {
+              var value = parseFloat(values[i])
+              if(typeof dataArray[i] === 'undefined') {
+                  /* leave the first value for date */
+                  var newArray = ['',value];
+                  dataArray.push(newArray);
+              } else {
+                  dataArray[i].push(value);
+              }
+          }
+      }
+
+      function drawLineChart(data,title) {
+          /* Set chart options */
+          var options = {'title':title,
+          'width':900,
+          'height':350};
+
+          /* Instantiate and draw our chart, passing in some options. */
+          var chart = new google.visualization.LineChart(document.getElementById('balance'));
+          chart.draw(data, options);
+      }
+
+      function drawColumnChart(data,title) {
+          /* Set chart options */
+          var options = {'title':title,
+          'width':900,
+          'height':350,
+          'isStacked':true};
+
+          /* Instantiate and draw our chart, passing in some options. */
+          var chart = new google.visualization.ColumnChart(document.getElementById('breakdown'));
+          chart.draw(data, options);
+      }
+  </script>
+
+  <!-- Load GAPI client -->
+  <script src="https://apis.google.com/js/client.js"></script>
+</head>
+
+<!-- Divs -->
+<body>
+  <span
+    id="login"
+    class="g-signin"
+    data-height="short"
+    data-callback="loginToGoogle"
+    data-cookiepolicy="single_host_origin"
+    data-requestvisibleactions="http://schemas.google.com/AddActivity"
+    data-scope="https://www.googleapis.com/auth/plus.login">
+  </span>
+  <div id="balance" style="width:1000; height:500"></div>
+  <div id="breakdown" style="width:1000; height:500"></div>
+</body>
+
+<!-- API Calls -->
+<script type="text/javascript">
+  /**
+   * ------------------
+   * Google authentication.
+   * ------------------
+   */
+  var GOOGLE_CLIENT_ID = '<found in secrets dir>';
+
+  document.getElementById('login').setAttribute('data-clientid', GOOGLE_CLIENT_ID);
+
+  function loginToGoogle(response) {
+      if (!response.error) {
+        configureS3(response.id_token);
+        gapi.client.load('plus', 'v1', authorizeUser);
+
+        console.log('You are now logged in.');
+    } else {
+        console.log('There was a problem logging you in.');
+    }
+  }
+
+  (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/client:plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+
+  /**
+   * ------------------
+   * Authorization
+   * ------------------
+   * Currently does nothing but grab & log out the user name + id
+   * Needs to be implemented for realz
+   */
+  function authorizeUser() {
+      console.log('Getting user info...');
+      request = gapi.client.plus.people.get({
+          userId: 'me'
+      });
+
+      var userId;
+
+      request.execute(function(resp) {
+          userId = resp.id;
+          console.log('User name: ' + resp.name.givenName + ' ' + resp.name.familyName);
+          console.log('User id: ' + userId);
+          createReport();
+      });
+  }
+
+
+  /**
+   * ------------------
+   * AWS S3
+   * ------------------
+   */
+  ROLE_ARN = '<found in secrets dir>';
+  BUCKET_NAME = '<found in secrets dir>';
+
+  /**
+   * Configure the credentials needed for Federated calls.
+   *
+   *
+   * ==== Setup on AWS side ====
+   * > S3 bucket policy - to allow gets from the address of the website.
+   * > IAM Role - to allow authed user to call against AWS
+   *
+   * ==== Setup on Google side ====
+   * > Create project
+   * > Create ClientId credentials for the project
+   * > Enable the Google+ API for the project
+   *
+   * ==== Notes on Calling with Web ID ====
+   * Federated Trust-relationship keys:
+   * http://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html#condition-keys-wif
+   *
+   * For Google federation, make sure that the "Trust relationships" on the IAM Role has the following.
+   * Entity: accounts.google.com
+   * Condition: Type=StringEquals  Key=accounts.google.com:aud Value=<Google project clientId>
+   *
+   * For Facebook, ensure the following.
+   * Entity: graph.facebook.com
+   * Condition: Type=StringEquals  Key=graph.facebook.com:app_id Value=<Facebook appId>
+   *
+   */
+  function configureS3(accessToken) {
+      AWS.config.region = 'eu-west-1';
+      AWS.config.credentials = new AWS.WebIdentityCredentials({
+          RoleArn: ROLE_ARN,
+          WebIdentityToken: accessToken
+      });
+      s3 = new AWS.S3;
+  }
+
+  function getS3File(file, callback) {
+      console.log('Getting ' + file + ' from S3');
+
+      var params = {
+          Key: file,
+          Bucket: BUCKET_NAME
+      };
+
+      s3.getObject(params, function(err, data) {
+          if(err) console.log(err, err.stack);
+          else    {
+              var contents = data.Body.toString('ascii');
+              console.log(contents);
+              callback(contents.trim().split('\n'));
+          }
+      });
+  }
+</script>
+</html>
+
