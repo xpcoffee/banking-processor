@@ -1,5 +1,6 @@
 ## Bank Account Visualizer
-This project provides a series of scripts which automate steps needed to visualize data from bank-account transactions.
+This project provides a collection of tools for storing, processing and visualizing transaction data from a bank-account.<br>
+The output is given on a webpage (report.html), which draws a line graph of balance over time and a stacked column graph showing the breakdown of monthly expenses.
 
 ### State of the world
 Below is a flow of the current project state.
