@@ -1,7 +1,7 @@
 require 'base64'
-require_relative '../configuration/config'
-require_relative '../lib/encryption_handler'
-require_relative '../lib/file_handler'
+require_relative '../lib/handlers/config_handler'
+require_relative '../lib/handlers/encryption_handler'
+require_relative '../lib/handlers/file_handler'
 
 # This script encrypts all .sql files in the unencrypted sql directory and places them within the encrypted sql directory.
 class SQLEncrypter
@@ -14,16 +14,19 @@ class SQLEncrypter
     def encrypt_sql
         directories = ['balance', 'monthly-breakdown']
         directories.each do |dir|
-            encrypt_files_in_directory(dir)
+            unencrypted_path = "#{@config.unencrypted_sql_root}/#{dir}"
+            encrypted_path = "#{@config.sql_root}/#{dir}"
+            files = "*.sql"
+            encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
         end
     end
 
-    def encrypt_files_in_directory(dir)
-        @file_handler.for_files("#{@config.unencrypted_sql_root}/#{dir}/*.sql") do |filename|
+    def encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
+        @file_handler.for_files("#{unencrypted_path}/#{files}") do |filename|
             sql_query = File.read(filename)
             encrypted_query = @encryption_handler.encrypt(sql_query)
 
-            output = File.open("#{@config.sql_root}/#{dir}/#{File.basename(filename)}.enc", "w")
+            output = File.open("#{encrypted_path}/#{File.basename(filename)}.enc", "w")
             output << encrypted_query
             output.close
 

@@ -1,8 +1,12 @@
-require_relative '../lib/encryption_handler'
+require_relative 'encryption_handler'
 class BankingConfig
-    # Application config
+    # Application roots
     def app_root
         @app_root ||= determine_root
+    end
+
+    def config_root
+        @config_root ||= File.join(app_root, 'configuration')
     end
 
     def sql_root
@@ -16,7 +20,6 @@ class BankingConfig
     def output_path
         @output_path ||= File.join(app_root, 'output')
     end
-
     # Encryption
     def encryption_path
         @encryption_path ||= File.join(app_root, 'secrets')
@@ -65,9 +68,15 @@ class BankingConfig
         @account ||= encryption_handler.decrypt('PnIGoZdoDxL6K3z+WFd34A==')
     end
 
+    private
+
     # Config logic
     def determine_root
         current_path = File.dirname(__FILE__)
-        File.join(current_path, '../../')
+        File.join(current_path, '../../../')
+    end
+
+    def load_yaml
+
     end
 end

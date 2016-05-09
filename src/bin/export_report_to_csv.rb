@@ -1,5 +1,5 @@
 require 'optparse'
-require_relative '../lib/output_processor'
+require_relative '../lib/processors/output_processor'
 
 options = {}
 options[:toothless] = false

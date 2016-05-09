@@ -1,4 +1,5 @@
 secrets
 output
 *.sublime-workspace
-src/unencrypted-sql/*
+*.sql
+*.yaml

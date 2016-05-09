@@ -1,6 +1,6 @@
-require_relative 'file_handler'
-require_relative 'mysql_handler'
-require_relative '../configuration/config'
+require_relative '../handlers/file_handler'
+require_relative '../handlers/mysql_handler'
+require_relative '../handlers/config_handler'
 
 class OutputProcessor
     def config
