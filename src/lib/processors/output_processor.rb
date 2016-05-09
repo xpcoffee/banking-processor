@@ -1,6 +1,7 @@
 require_relative '../handlers/file_handler'
 require_relative '../handlers/mysql_handler'
 require_relative '../handlers/config_handler'
+require_relative '../handlers/s3_handler'
 
 class OutputProcessor
     def config
@@ -19,6 +20,13 @@ class OutputProcessor
         @db ||= MySQLHandler.new(config)
     end
 
+    def s3
+        @s3 ||= S3Handler.new( config.aws_region,
+            config.aws_access_key,
+            config.aws_secret_key,
+            config.aws_ca_bundle)
+    end
+
     def csv_data
         @csv_data ||= []
     end
@@ -27,14 +35,20 @@ class OutputProcessor
         puts "=============================="
         puts "Exporting balance data to .csv"
         puts "=============================="
-        export_data_to_csv("#{config.sql_root}/balance/", output_file)
+
+        file_path = "#{config.output_path}/#{output_file}"
+        export_data_to_csv("#{config.sql_root}/balance/", file_path)
+        upload_file_to_s3(file_path)
     end
 
     def export_breakdown_data_to_csv(output_file)
         puts "==================================="
         puts "Exporting monthly-breakdown to .csv"
         puts "==================================="
-        export_data_to_csv("#{config.sql_root}/monthly-breakdown/", output_file)
+
+        file_path = "#{config.output_path}/#{output_file}"
+        export_data_to_csv("#{config.sql_root}/monthly-breakdown/", file_path)
+        upload_file_to_s3(file_path)
     end
 
     private
@@ -44,15 +58,22 @@ class OutputProcessor
         begin
             puts "Writing data to csv..."
 
-            output = File.open("#{config.output_path}/#{output_file}", "w")
+            output = File.open(output_file, "w")
             data.each do |query_data|
                 output << "#{query_data.join(',')}\n"
             end
 
-            puts "Write complete. Data exported to #{output_file}"
+            puts "Write complete. Data exported to #{File.basename(output_file)}"
         ensure
             output.close
         end
+    end
+
+    def upload_file_to_s3(filepath)
+        puts "Uploading file to S3..."
+        s3.upload_file( filepath,
+            config.s3_bucket,
+            File.basename(filepath) )
     end
 
     def get_data(sql_path)

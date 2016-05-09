@@ -24,7 +24,7 @@ Below is a flow of the current project state.
      |          | MySQL DB |                       |          |       |                          |           |          |
      |          +----------+                       |          |       +------+                   |           |          |
      |               |                             |          |       |      | draw graphs       |           |          |
-     |               |  export_report_to_csv.rb    |          |       <------+                   |           |          |
+     |               |  export_report.rb           |          |       <------+                   |           |          |
      |               |                             |          |       |                          |           |          |
      |     +---------v-------------+               |          |       +                          +           +          |
      |     | Balance.csv           |               |          |                                                         |
@@ -33,11 +33,11 @@ Below is a flow of the current project state.
      |               |                             |                                                         |
      +---------------|-----------------------------+                                                         |
                      |                                                                                       |
-                     |                currently a manual upload to S3 (to add S3 API)                        |
+                     |                export_report.rb also uploads csv files to S3                          |
                      +---------------------------------------------------------------------------------------+
 
 ### Work still to do:
- * Add script to upload output .csv files to S3
- * Change the report workflow to become HTML<br>
+ * Add a script that automates inserting into file & exporting to S3
+ * Change the report workflow to become serverless<br>
  Currently, report.html needs to make calls to both GAPI and AWS-S3, so needs a server to run.<br>
  I want to change this to be serverless - current thoughts are AWS-API-Gateway + AWS-Lambda.

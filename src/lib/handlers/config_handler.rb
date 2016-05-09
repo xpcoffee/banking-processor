@@ -69,6 +69,27 @@ class BankingConfig
         @account ||= config['bank']['account']
     end
 
+    # AWS config
+    def aws_region
+        @aws_region = config['aws']['region']
+    end
+
+    def aws_access_key
+        @aws_access_key = config['aws']['access_key']
+    end
+
+    def aws_secret_key
+        @aws_secret_key = config['aws']['secret_key']
+    end
+
+    def aws_ca_bundle
+        @aws_ca_bundle = "#{config['aws']['ca_bundle']}"
+    end
+
+    def s3_bucket
+        @s3_bucket = config['aws']['s3_bucket']
+    end
+
     # Input file config
     def data_delimiter
         @data_delimiter ||= ','
