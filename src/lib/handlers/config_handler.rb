@@ -1,5 +1,11 @@
+require 'yaml'
 require_relative 'encryption_handler'
+
 class BankingConfig
+    def initialize
+        @config = load_yaml
+    end
+
     # Application roots
     def app_root
         @app_root ||= determine_root
@@ -39,33 +45,33 @@ class BankingConfig
 
     # MySQL config
     def user
-        @user ||= encryption_handler.decrypt('5qN8BrJ9HpIKsRhJoabMDg==')
+        @user ||= config['mysql']['user']
     end
 
     def host
-        @host ||= encryption_handler.decrypt('QGr/pvqHvsY+9y+HUz8K6g==')
+        @host ||= config['mysql']['host']
     end
 
     def pass
-        @pass ||= encryption_handler.decrypt('rbvlRZppycxsb9erFyKsXQ==')
+        @pass ||= config['mysql']['pass']
     end
 
     def database
-        @database ||= encryption_handler.decrypt('G5MvDavNVPRXNUhpF0YdoA==')
+        @database ||= config['mysql']['database']
     end
 
     def table
-        @table ||= encryption_handler.decrypt('HpdK+Cb6O5F6KjA0pO8pJw==')
+        @table ||= config['mysql']['table']
+    end
+
+    # Bank config
+    def account
+        @account ||= config['bank']['account']
     end
 
     # Input file config
     def data_delimiter
         @data_delimiter ||= ','
-    end
-
-    # Bank config
-    def account
-        @account ||= encryption_handler.decrypt('PnIGoZdoDxL6K3z+WFd34A==')
     end
 
     private
@@ -77,6 +83,13 @@ class BankingConfig
     end
 
     def load_yaml
-
+        encrypted = File.read("#{config_root}/config.yaml.enc")
+        yaml = encryption_handler.decrypt(encrypted)
+        YAML.load(yaml)
     end
+
+    def config
+        @config
+    end
+
 end

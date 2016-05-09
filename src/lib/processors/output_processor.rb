@@ -44,7 +44,7 @@ class OutputProcessor
         begin
             puts "Writing data to csv..."
 
-            output = File.open("#{config.output_path}#{output_file}", "w")
+            output = File.open("#{config.output_path}/#{output_file}", "w")
             data.each do |query_data|
                 output << "#{query_data.join(',')}\n"
             end
