@@ -43,9 +43,9 @@ class OutputProcessor
     end
 
     def export_balance_data
-        puts "=============================="
-        puts "Exporting balance data to .csv"
-        puts "=============================="
+        puts "======================"
+        puts "Exporting balance data"
+        puts "======================"
 
         file_path = "#{config.output_path}/#{config.balance_file}"
         export_data_to_csv("#{config.sql_root}/balance/", file_path)
@@ -53,9 +53,9 @@ class OutputProcessor
     end
 
     def export_breakdown_data
-        puts "==================================="
-        puts "Exporting monthly-breakdown to .csv"
-        puts "==================================="
+        puts "================================"
+        puts "Exporting monthly-breakdown data"
+        puts "================================"
 
         file_path = "#{config.output_path}/#{config.breakdown_file}"
         export_data_to_csv("#{config.sql_root}/monthly-breakdown/", file_path)
@@ -67,24 +67,22 @@ class OutputProcessor
     def export_data_to_csv(sql_path, output_file)
         data = get_data(sql_path)
         begin
-            puts "Writing data to csv..."
-
             output = File.open(output_file, "w")
             data.each do |query_data|
                 output << "#{query_data.join(',')}\n"
             end
 
-            puts "Write complete. Data exported to #{File.basename(output_file)}"
+            puts "Data exported to #{File.basename(output_file)}"
         ensure
             output.close
         end
     end
 
     def upload_file_to_s3(filepath)
-        puts "Uploading file to S3..."
         s3.upload_file( filepath,
             config.s3_bucket,
             File.basename(filepath) )
+        puts "File #{File.basename} uploaded to #{config.s3_bucket}"
     end
 
     def get_data(sql_path)
@@ -109,10 +107,9 @@ class OutputProcessor
     # Execute all the sql queries in the SQL path
     # If the files are encrypted, decrypt them first
     def execute_sql_queries(sql_path)
-        puts "Selecting MySQL database..."
         db.use_database(config.database)
+        puts "Selected database #{config.database}"
 
-        puts "Querying database..."
         file_handler.for_files("#{sql_path}*.sql") do |filename|
             puts 'Found unencrypted SQL query: ' + File.basename(filename)
             sql_query = File.read(filename)
@@ -127,5 +124,6 @@ class OutputProcessor
             result = db.query(sql_query)
             yield(result)
         end
+        puts "Queries complete."
     end
 end

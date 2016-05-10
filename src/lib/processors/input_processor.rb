@@ -28,12 +28,15 @@ class InputProcessor
     end
 
     def process(path)
-        puts "Selecting MySQL database..."
-        db.use_database(config.database)
+        puts "====================================================="
+        puts "Inserting data from #{File.basename(path)} into MySQL"
+        puts "====================================================="
 
-        puts "Inserting entries into table..."
+        db.use_database(config.database)
+        puts "Selected database #{config.database}"
+
         file.for_contents(path) { |line| process_line(line) }
-        puts "Done. Processed #{counter} entries."
+        puts "Proccessing complete. Processed #{counter} entries."
     end
 
     def process_line(line)

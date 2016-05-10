@@ -5,15 +5,15 @@ The output is given on a webpage (report.html), which draws a line graph of bala
 ### State of the world
 Below is a flow of the current project state.
 
-     SCRIPTS TO STORE & PROCESS DATA
-     +---------------------------------------------+
-     |                                             |
-     |           +------+                          |            HTML REPORT TO VISUALIZE DATA
-     |           | Bank |                          |          +---------------------------------------------------------+
-     |           +------+                          |          |                                                         |
-     |               |                             |          |                                                         |
-     |               |  download from Bank website |          |                                           CSV files in  |
-     |               |                             |          |    report.html              Google Auth   AWS S3        |
+     SCRIPTS TO STORE & PROCESS DATA                            HTML REPORT TO VISUALIZE DATA
+
+            +---------------+
+            | Bank  Website |
+            +---------------+                                 +---------------------------------------------------------+
+                     |                                        |                                                         |
+                     |  download from Bank website            |                                                         |
+                     |                                        |                                           CSV files in  |
+     +---------------|-- execute-processor.rb -----+          |    report.html              Google Auth   AWS S3        |
      |          +----v-----+                       |          |       +                          +           +          |
      |          | CSV file |                       |          |       |   authenticate user      |           |          |
      |          +----------+                       |          |       +-------------------------->           |          |
@@ -37,7 +37,7 @@ Below is a flow of the current project state.
                      +---------------------------------------------------------------------------------------+
 
 ### Work still to do:
- * Add a script that automates inserting into file & exporting to S3
  * Change the report workflow to become serverless<br>
  Currently, report.html needs to make calls to both GAPI and AWS-S3, so needs a server to run.<br>
  I want to change this to be serverless - current thoughts are AWS-API-Gateway + AWS-Lambda.
+ * Get processor to get new data from email, rather than from the manually downloaded file
