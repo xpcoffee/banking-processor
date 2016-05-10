@@ -3,12 +3,16 @@ require_relative '../handlers/mysql_handler'
 require_relative '../handlers/config_handler'
 
 class InputProcessor
-    def initialize(toothless)
-        @toothless = toothless
+    def initialize(dry = nil)
+        @dryrun = dry unless dry.nil?
     end
 
     def config
         @config ||= BankingConfig.new
+    end
+
+    def dryrun
+        @dryrun ||= config.dryrun
     end
 
     def file
@@ -42,7 +46,7 @@ class InputProcessor
             balance = data[2].strip
             description = data[3].strip
 
-            if @toothless
+            if dryrun
                 puts "#{date} #{account} #{amount} #{balance} #{description}"
                 return
             end

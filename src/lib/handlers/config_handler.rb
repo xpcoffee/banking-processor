@@ -43,6 +43,19 @@ class BankingConfig
         @encryption_handler ||= EncryptionHandler.new(encryption_key_path, encryption_iv_path)
     end
 
+    # App config
+    def dryrun
+        @dryrun ||= config['app']['dryrun']
+    end
+
+    def balance_file
+        @balance_file ||= config['app']['balance_file']
+    end
+
+    def breakdown_file
+        @breakdown_file ||= config['app']['breakdown_file']
+    end
+
     # MySQL config
     def user
         @user ||= config['mysql']['user']

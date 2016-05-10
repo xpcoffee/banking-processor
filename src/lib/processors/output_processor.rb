@@ -3,9 +3,20 @@ require_relative '../handlers/mysql_handler'
 require_relative '../handlers/config_handler'
 require_relative '../handlers/s3_handler'
 
+# Queryies the datastore and processes the results.
+# Output is in the form of .csv files, which get uploaded to AWS S3.
+# The processor can be run in dryrun mode which stops the files from being uploaded.
 class OutputProcessor
+    def initialize(dry = nil)
+        @dryrun = dry unless dry.nil?
+    end
+
     def config
         @config ||= BankingConfig.new
+    end
+
+    def dryrun
+        @dryrun ||= config.dryrun
     end
 
     def encryption_handler
@@ -31,24 +42,24 @@ class OutputProcessor
         @csv_data ||= []
     end
 
-    def export_balance_data_to_csv(output_file)
+    def export_balance_data
         puts "=============================="
         puts "Exporting balance data to .csv"
         puts "=============================="
 
-        file_path = "#{config.output_path}/#{output_file}"
+        file_path = "#{config.output_path}/#{config.balance_file}"
         export_data_to_csv("#{config.sql_root}/balance/", file_path)
-        upload_file_to_s3(file_path)
+        upload_file_to_s3(file_path) unless dryrun
     end
 
-    def export_breakdown_data_to_csv(output_file)
+    def export_breakdown_data
         puts "==================================="
         puts "Exporting monthly-breakdown to .csv"
         puts "==================================="
 
-        file_path = "#{config.output_path}/#{output_file}"
+        file_path = "#{config.output_path}/#{config.breakdown_file}"
         export_data_to_csv("#{config.sql_root}/monthly-breakdown/", file_path)
-        upload_file_to_s3(file_path)
+        upload_file_to_s3(file_path) unless dryrun
     end
 
     private
