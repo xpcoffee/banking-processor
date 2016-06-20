@@ -82,7 +82,7 @@ class OutputProcessor
         s3.upload_file( filepath,
             config.s3_bucket,
             File.basename(filepath) )
-        puts "File #{File.basename} uploaded to #{config.s3_bucket}"
+        puts "File #{File.basename(filepath)} uploaded to #{config.s3_bucket}"
     end
 
     def get_data(sql_path)
