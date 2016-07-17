@@ -79,8 +79,8 @@ module BankingProcessor
     end
 
     # Bank config
-    def account
-      @account ||= config['bank']['account']
+    def accounts
+      @accounts ||= config['accounts']
     end
 
     # AWS config

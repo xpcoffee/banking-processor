@@ -1,5 +1,6 @@
 require_relative '../config'
 require_relative '../io/file_handler'
+require_relative '../io/preety_output'
 require_relative '../datastore/mysql_handler'
 require_relative '../datastore/s3_handler'
 
@@ -42,28 +43,32 @@ module BankingProcessor
           )
       end
 
+      def preety
+        @preety ||= BankingProcessor::IO::PreetyOutput.new
+      end
+
       def csv_data
         @csv_data ||= []
       end
 
       def export_balance_data
-        puts "======================"
-        puts "Exporting balance data"
-        puts "======================"
+        preety.heading("Exporting balance data")
 
         file_path = "#{config.output_path}/#{config.balance_file}"
         export_data_to_csv("#{config.sql_root}/balance/", file_path)
         upload_file_to_s3(file_path) unless dryrun
+
+        preety.end_section
       end
 
       def export_breakdown_data
-        puts "================================"
-        puts "Exporting monthly-breakdown data"
-        puts "================================"
+        preety.heading("Exporting monthly-breakdown data")
 
         file_path = "#{config.output_path}/#{config.breakdown_file}"
         export_data_to_csv("#{config.sql_root}/monthly-breakdown/", file_path)
         upload_file_to_s3(file_path) unless dryrun
+
+        preety.end_section()
       end
 
       private
@@ -112,8 +117,6 @@ module BankingProcessor
       # Execute all the sql queries in the SQL path
       # If the files are encrypted, decrypt them first
       def execute_sql_queries(sql_path)
-        db.use_database(config.database)
-        puts "Selected database #{config.database}"
 
         file_handler.for_files("#{sql_path}*.sql") do |filename|
           puts 'Found unencrypted SQL query: ' + File.basename(filename)

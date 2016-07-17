@@ -8,11 +8,19 @@ module BankingProcessor
         @config ||= config
       end
 
+      def config
+        @config
+      end
+
+      def description
+        return "MySQL"
+      end
+
       def client
         @client ||= Mysql2::Client.new(
-          :host => @config.host,
-          :username => @config.user,
-          :password => @config.pass
+          :host => config.host,
+          :username => config.user,
+          :password => config.pass
           )
       end
 
@@ -25,17 +33,28 @@ module BankingProcessor
         return databases
       end
 
-      def use_database(database)
-        response = client.query("USE #{database};")
-        return true if response == "Database changed"
-        return response
+      def set_database
+        @database_set ||= begin
+          puts @database_set
+
+          begin
+            response = client.query("USE #{config.database};")
+          rescue Mysql2::Error => e
+            STDERR.puts "[ERROR] Unable to select database: #{e.message} "
+            Kernel.exit(1)
+          end
+
+          true
+        end
       end
 
-      def insert_transaction(date, account, amount, balance, description)
-        client.query("INSERT IGNORE INTO #{@config.table} VALUES (\"#{date}\",\"#{account}\",#{amount},#{balance},\"#{description}\");")
+      def insert_transaction(account, date, amount, balance, description)
+        set_database()
+        client.query("INSERT IGNORE INTO #{config.table} VALUES (\"#{date}\",\"#{account}\",#{amount},#{balance},\"#{description}\");")
       end
 
       def query(sql_query)
+        set_database()
         response = client.query("#{sql_query}")
       end
     end

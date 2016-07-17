@@ -2,8 +2,7 @@
 	"folders":
 	[
 		{
-			"path": ".",
-			"file_exclude_patterns": [".gitignore"]
+			"path": "."
 		}
 	],
 	"settings":
