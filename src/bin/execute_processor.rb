@@ -1,6 +1,6 @@
 require 'optparse'
-require_relative '../lib/processors/input_processor'
-require_relative '../lib/processors/output_processor'
+require_relative '../lib/banking_processor/processor/input_processor'
+require_relative '../lib/banking_processor/processor/output_processor'
 
 options = {}
 OptionParser.new do |opts|
@@ -26,10 +26,10 @@ if (file.nil? || file.empty?)
 end
 
 # Insert into DB
-input = InputProcessor.new(options[:dryrun])
+input = BankingProcessor::Processor::InputProcessor.new(options[:dryrun])
 input.process(file)
 
 # Export to file & S3
-output = OutputProcessor.new(options[:dryrun])
+output = BankingProcessor::Processor::OutputProcessor.new(options[:dryrun])
 output.export_balance_data
 output.export_breakdown_data

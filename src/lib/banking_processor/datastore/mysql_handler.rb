@@ -1,39 +1,43 @@
 require 'rubygems'
 require 'mysql2'
 
-class MySQLHandler
-    def initialize(config)
+module BankingProcessor
+  module Datastore
+    class MySQLHandler
+      def initialize(config)
         @config ||= config
-    end
+      end
 
-    def client
+      def client
         @client ||= Mysql2::Client.new(
-            :host => @config.host,
-            :username => @config.user,
-            :password => @config.pass
-            )
-    end
+          :host => @config.host,
+          :username => @config.user,
+          :password => @config.pass
+          )
+      end
 
-    def get_databases
+      def get_databases
         databases = []
         response = client.query("SHOW DATABASES;")
         response.each do |entry|
-            databases.push(entry['Database'])
+          databases.push(entry['Database'])
         end
         return databases
-    end
+      end
 
-    def use_database(database)
+      def use_database(database)
         response = client.query("USE #{database};")
         return true if response == "Database changed"
         return response
-    end
+      end
 
-    def insert_transaction(date, account, amount, balance, description)
+      def insert_transaction(date, account, amount, balance, description)
         client.query("INSERT IGNORE INTO #{@config.table} VALUES (\"#{date}\",\"#{account}\",#{amount},#{balance},\"#{description}\");")
-    end
+      end
 
-    def query(sql_query)
+      def query(sql_query)
         response = client.query("#{sql_query}")
+      end
     end
+  end
 end

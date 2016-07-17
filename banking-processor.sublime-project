@@ -2,14 +2,20 @@
 	"folders":
 	[
 		{
-			"path": "."
+			"path": ".",
+			"file_exclude_patterns": [".gitignore"]
 		}
 	],
 	"settings":
 	{
+		"detect_indentation": false,
 		"tab_size": 2,
-		"FuzzyFilePath":
+	},
+	"build_systems":
+	[
 		{
+			"name": "Run",
+			"shell_cmd": "ruby"
 		}
-	}
+	]
 }

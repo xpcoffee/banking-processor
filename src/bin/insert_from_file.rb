@@ -1,5 +1,5 @@
 require 'optparse'
-require_relative '../lib/processors/input_processor'
+require_relative '../lib/banking_processor/processors/input_processor'
 
 options = {}
 OptionParser.new do |opts|
@@ -24,5 +24,5 @@ if (file.nil? || file.empty?)
     exit
 end
 
-processor = InputProcessor.new(options[:dryrun])
+input = BankingProcessor::Processor::InputProcessor.new(options[:dryrun])
 processor.process(file)

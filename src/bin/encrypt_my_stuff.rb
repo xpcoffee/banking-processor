@@ -1,14 +1,14 @@
 require 'base64'
-require_relative '../lib/handlers/config_handler'
-require_relative '../lib/handlers/encryption_handler'
-require_relative '../lib/handlers/file_handler'
+require_relative '../lib/banking_processor/config'
+require_relative '../lib/banking_processor/io/encryption_handler'
+require_relative '../lib/banking_processor/io/file_handler'
 
 # This script encrypts all .sql files in the unencrypted sql directory and places them within the encrypted sql directory.
-class SQLEncrypter
+class Encrypter
     def initialize
-        @config = BankingConfig.new
-        @encryption_handler = EncryptionHandler.new(config.encryption_key_path,config.encryption_iv_path)
-        @file_handler = FileHandler.new
+        @config = BankingProcessor::Config.new
+        @encryption_handler = BankingProcessor::IO::EncryptionHandler.new(config.encryption_key_path,config.encryption_iv_path)
+        @file_handler = BankingProcessor::IO::FileHandler.new
     end
 
     def encrypt_sql
@@ -55,6 +55,6 @@ class SQLEncrypter
     end
 end
 
-encrypter = SQLEncrypter.new
+encrypter = Encrypter.new
 encrypter.encrypt_sql
 encrypter.encrypt_yaml
