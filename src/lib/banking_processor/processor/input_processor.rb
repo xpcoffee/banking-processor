@@ -1,6 +1,6 @@
 require_relative '../io/file_handler'
 require_relative '../io/preety_output'
-require_relative '../datastore/mysql_handler'
+require_relative '../datastore/datastore_facade'
 require_relative '../config'
 
 module BankingProcessor
@@ -23,7 +23,7 @@ module BankingProcessor
       end
 
       def db
-        @db ||= BankingProcessor::Datastore::MySQLHandler.new(config)
+        @db ||= BankingProcessor::Datastore::DatastoreFacade.new(config)
       end
 
       def counter
@@ -50,7 +50,7 @@ module BankingProcessor
         if begins_with_date(line)
           data = line.split(config.data_delimiter)
 
-          account = config.accounts[0]
+          account = config.accounts.keys.first
           date = data[0].strip
           amount = data[1].strip
           balance = data[2].strip
@@ -65,9 +65,10 @@ module BankingProcessor
             puts "#{date} #{account} #{amount} #{balance} #{description}"
             return
           else
-            #Progress indicator
-            #print '.'
+            # Progress indicator
+            print '.'
           end
+          return if account.nil?
 
           db.insert_transaction(
             account,

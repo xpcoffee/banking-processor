@@ -27,6 +27,7 @@ module BankingProcessor
     def output_path
       @output_path ||= File.join(app_root, 'output')
     end
+
     # Encryption
     def encryption_path
       @encryption_path ||= File.join(app_root, 'secrets')
@@ -57,6 +58,10 @@ module BankingProcessor
       @breakdown_file ||= config['app']['breakdown_file']
     end
 
+    def datastore
+      @datastore ||= config['app']['datastore']
+    end
+
     # MySQL config
     def user
       @user ||= config['mysql']['user']
@@ -81,6 +86,10 @@ module BankingProcessor
     # Bank config
     def accounts
       @accounts ||= config['accounts']
+    end
+
+    def dynamo_table(account)
+      config['accounts'][account]
     end
 
     # AWS config

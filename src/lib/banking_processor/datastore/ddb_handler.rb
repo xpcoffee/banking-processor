@@ -2,14 +2,21 @@ require 'aws-sdk'
 
 module BankingProcessor
   module Datastore
-    class DDBHandler
-      def initialize(region, access_key, secret_key, ca_bundle)
+
+    class DynamoDBHandler
+      def initialize(config)
+        @config = config
+
         @client = Aws::DynamoDB::Client.new(
-          region: region,
-          access_key_id: access_key,
-          secret_access_key: secret_key,
-          ssl_ca_bundle: ca_bundle # Ruby SDK can't find path on Windows - need to set it explicitly
+          region: config.aws_region,
+          access_key_id: config.aws_access_key,
+          secret_access_key: config.aws_secret_key,
+          ssl_ca_bundle: config.aws_ca_bundle # Ruby SDK can't find path on Windows - need to set it explicitly
         )
+      end
+
+      def config
+        @config
       end
 
       def description
@@ -25,21 +32,15 @@ module BankingProcessor
         return resp.table_names
       end
 
-      def generate_account_table_name(account)
-        @table ||= begin
-          bank_account = account.split(' ')
-          [bank_account[0], bank_account[1], 'banking-data'].join('-')
-        end
-      end
-
-      def insert_transaction(account, date, amount, balance, description)
+      def insert_transaction(account, yearmonth, day, amount, balance, description)
         begin
           client.put_item({
-            table_name: generate_account_table_name(account),
+            table_name: config.dynamo_table(account),
             item: {
-              'date' => date,
-              'balance' => balance,
-              'amount' => amount,
+              'year-month' => year_month,
+              'day' => day,
+              'balance' => balance.to_f,
+              'amount' => amount.to_f,
               'description' => description
             }
             })
@@ -48,6 +49,7 @@ module BankingProcessor
           Kernel.exit(1)
         end
       end
+
     end
   end
 end
