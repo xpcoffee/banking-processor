@@ -1,9 +1,12 @@
 require 'aws-sdk'
+require_relative 'ddb_inserter/balance_inserter'
 
 module BankingProcessor
   module Datastore
 
     class DynamoDBHandler
+      FALLBACK_ACCOUNT = 'FNB 62206800767'
+
       def initialize(config)
         @config = config
 
@@ -13,6 +16,9 @@ module BankingProcessor
           secret_access_key: config.aws_secret_key,
           ssl_ca_bundle: config.aws_ca_bundle # Ruby SDK can't find path on Windows - need to set it explicitly
         )
+
+        @balance_inserter = BankingProcessor::Datastore::DynamoDBInserter::BalanceInserter.new(client)
+        @transaction_inserter = BankingProcessor::Datastore::DynamoDBInserter::TransactionInserter.new(client)
       end
 
       def config
@@ -27,25 +33,34 @@ module BankingProcessor
         @client
       end
 
+      def balance_inserter
+        @balance_inserter
+      end
+
+      def transaction_inserter
+        @transaction_inserter
+      end
+
+      # application specific methods
+      def insert_transaction(account, year_month, day, amount, balance, description)
+        transaction_inserter.put_transaction(account, year_month, day, amount, balance, description)
+        balance_inserter.update_balance(table, year_month, day)
+      end
+
+      # generic methods
       def get_tables
         resp = client.list_tables()
         return resp.table_names
       end
 
-      def insert_transaction(account, yearmonth, day, amount, balance, description)
+      def query(table_name, key_conditions)
         begin
           client.put_item({
-            table_name: config.dynamo_table(account),
-            item: {
-              'year-month' => year_month,
-              'day' => day,
-              'balance' => balance.to_f,
-              'amount' => amount.to_f,
-              'description' => description
-            }
+            table_name: table,
+            key_conditions: key_conditions
             })
         rescue Aws::DynamoDB::Errors::ServiceError => e
-          STDERR.puts '[ERROR] Unable to add transaction to DynamoDB: ' + e.message
+          STDERR.puts '[ERROR] Unable to query DynamoDB: ' + e.message
           Kernel.exit(1)
         end
       end

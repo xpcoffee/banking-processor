@@ -52,6 +52,10 @@ module BankingProcessor
 
           account = config.accounts.keys.first
           date = data[0].strip
+          date_elements = date.split('-')
+          year_month = "#{date_elements[0]-date_elements[1]}"
+          day = date_elements[2]
+
           amount = data[1].strip
           balance = data[2].strip
           description = data[3].strip
@@ -62,7 +66,7 @@ module BankingProcessor
           end
 
           if dryrun
-            puts "#{date} #{account} #{amount} #{balance} #{description}"
+            puts "#{year_month} #{day} #{account} #{amount} #{balance} #{description}"
             return
           else
             # Progress indicator
@@ -72,7 +76,8 @@ module BankingProcessor
 
           db.insert_transaction(
             account,
-            date,
+            year_month,
+            day,
             amount,
             balance,
             description
