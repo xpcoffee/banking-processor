@@ -1,6 +1,6 @@
 module BankingProcessor
   module Datastore
-    module DynamoDBInserter
+    module DynamoDB
       class BalanceInserter
         def initialize(client)
           @client = client

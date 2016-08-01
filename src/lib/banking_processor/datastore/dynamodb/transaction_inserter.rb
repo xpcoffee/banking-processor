@@ -1,6 +1,6 @@
 module BankingProcessor
   module Datastore
-    module DynamoDBInserter
+    module DynamoDB
 
       # Handles logic specific to inserting entries into the transaction table in DDB
       class TransactionInserter

@@ -17,8 +17,8 @@ module BankingProcessor
           ssl_ca_bundle: config.aws_ca_bundle # Ruby SDK can't find path on Windows - need to set it explicitly
         )
 
-        @balance_inserter = BankingProcessor::Datastore::DynamoDBInserter::BalanceInserter.new(client)
-        @transaction_inserter = BankingProcessor::Datastore::DynamoDBInserter::TransactionInserter.new(client)
+        @balance_inserter = BankingProcessor::Datastore::DynamoDB::BalanceInserter.new(client)
+        @transaction_inserter = BankingProcessor::Datastore::DynamoDB::TransactionInserter.new(client)
       end
 
       def config
