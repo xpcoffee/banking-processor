@@ -34,10 +34,6 @@ module BankingProcessor
             datastore.description
         end
 
-        def table
-            @table = config.dynamo_table
-        end
-
         def insert_transaction(account, year_month, day, amount, balance, description)
             datastore.insert_transaction(account, year_month, day, amount, balance, description)
         end

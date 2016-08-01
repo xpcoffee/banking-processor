@@ -2,25 +2,39 @@ module BankingProcessor
   module Datastore
     module DynamoDB
       class BalanceInserter
-        def initialize(client)
+        def initialize(client, config)
           @client = client
+          @config = config
         end
 
         def client
           @client
         end
 
-        def update_balance(table, year_month, day, balance) {
-          year = year_month.split('-')[0]
-          month_day = "#{year_month.split('-')[1]}-#{day}"
+        def config
+          @config
+        end
 
-          current_balance = get_balance(year_month, day, date)
-
-          if !current_balance.nil?
-            and balance.to_i < current_balance.to_i
-            put_balance(table, date, balance) if current_balance.nil?
+        def update_balance(account, year_month, day, balance)
+          table = config.balance_table(account)
+          if table.nil?
+            fallback_account = config.default_account
+            STDERR.puts "[WARN] Unable to find table for account '#{account}'. Using fallback account '#{fallback_account}'."
+            table = config.balance_table(fallback_account)
           end
-        }
+
+          year = year_month.split('-')[0]
+
+          zero_padded_month = year_month.split('-')[1].rjust(2,'0')
+          zero_padded_day = day.rjust(2,'0')
+          month_day = "#{zero_padded_month}-#{zero_padded_day}"
+
+          current_balance = get_balance(table, year_month, day)
+
+          if ( current_balance.nil? ) || ( balance.to_i < current_balance.to_i )
+            put_balance(table, year, month_day, balance) if current_balance.nil?
+          end
+        end
 
         def get_balance(table, year, month_day)
           params = {
@@ -39,7 +53,7 @@ module BankingProcessor
             Kernel.exit(1)
           end
 
-          return nil if resp.nil?
+          return nil if resp.nil? or resp.item.nil?
           resp.item['balance']
         end
 

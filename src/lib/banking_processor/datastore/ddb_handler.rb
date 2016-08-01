@@ -1,11 +1,11 @@
 require 'aws-sdk'
-require_relative 'ddb_inserter/balance_inserter'
+require_relative 'dynamodb/balance_inserter'
+require_relative 'dynamodb/transaction_inserter'
 
 module BankingProcessor
   module Datastore
 
     class DynamoDBHandler
-      FALLBACK_ACCOUNT = 'FNB 62206800767'
 
       def initialize(config)
         @config = config
@@ -17,8 +17,8 @@ module BankingProcessor
           ssl_ca_bundle: config.aws_ca_bundle # Ruby SDK can't find path on Windows - need to set it explicitly
         )
 
-        @balance_inserter = BankingProcessor::Datastore::DynamoDB::BalanceInserter.new(client)
-        @transaction_inserter = BankingProcessor::Datastore::DynamoDB::TransactionInserter.new(client)
+        @balance_inserter = BankingProcessor::Datastore::DynamoDB::BalanceInserter.new(client, config)
+        @transaction_inserter = BankingProcessor::Datastore::DynamoDB::TransactionInserter.new(client, config)
       end
 
       def config
@@ -44,7 +44,7 @@ module BankingProcessor
       # application specific methods
       def insert_transaction(account, year_month, day, amount, balance, description)
         transaction_inserter.put_transaction(account, year_month, day, amount, balance, description)
-        balance_inserter.update_balance(table, year_month, day)
+        balance_inserter.update_balance(account, year_month, day, balance)
       end
 
       # generic methods

@@ -88,8 +88,16 @@ module BankingProcessor
       @accounts ||= config['accounts']
     end
 
-    def dynamo_table(account)
-      config['accounts'][account]
+    def default_account
+      @default_account = 'FNB 62206800767'
+    end
+
+    def transaction_table(account)
+      config['accounts'][account]['transactions']
+    end
+
+    def balance_table(account)
+      config['accounts'][account]['balance']
     end
 
     # AWS config

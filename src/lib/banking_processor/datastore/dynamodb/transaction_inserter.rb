@@ -4,26 +4,38 @@ module BankingProcessor
 
       # Handles logic specific to inserting entries into the transaction table in DDB
       class TransactionInserter
-        def initialize(client)
+        def initialize(client, config)
           @client = client
+          @config = config
         end
 
         def client
           @client
         end
 
+        def config
+          @config
+        end
+
         def put_transaction(account, year_month, day, amount, balance, description)
-          table = config.dynamo_table(account)
+          table = config.transaction_table(account)
           if table.nil?
-            STDERR.puts "[WARN] Unable to find table for account '#{account}'. Using fallback account '#{FALLBACK_ACCOUNT}'."
-            table = config.dynamo_table(FALLBACK_ACCOUNT)
+            fallback_account = config.default_account
+            STDERR.puts "[WARN] Unable to find table for account '#{account}'. Using fallback account '#{fallback_account}'."
+            table = config.transaction_table(fallback_account)
           end
+
+          year = year_month.split('-')[0]
+          zero_padded_month = year_month.split('-')[1].rjust(2, '0')
+          zero_padded_year_month = "#{year}-#{zero_padded_month}"
+
+          zero_padded_day = day.rjust(2, '0')
 
           params = {
             table_name: table,
             item: {
-              'year-month' => year_month,
-              'day' => day,
+              'year-month' => zero_padded_year_month,
+              'day' => zero_padded_day,
               'balance' => balance.to_f,
               'amount' => amount.to_f,
               'description' => description
