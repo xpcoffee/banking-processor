@@ -42,30 +42,6 @@ module BankingProcessor
             datastore.insert_transaction(account, year_month, day, amount, balance, description)
         end
 
-        def update_balance(date, balance)
-        end
-
-        def get_records_for_year_month(table_name, year_month)
-            params = {
-                table_name: table_name,
-
-            }
-        end
-
-         def get_records_after_date(table_name, date)
-           value = "#{date.year}-#{date.month}"
-           operator = 'GT'
-
-           key_conditions = {
-             'year-month' => {
-               attribute_value_list: [value]
-               comparison_operator: operator
-             }
-           }
-
-           query(table_name, key_conditions);
-         end
-
         def query(statement)
             datastore.query(statement)
         end
