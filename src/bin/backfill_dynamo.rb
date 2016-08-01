@@ -33,7 +33,7 @@ mysql_data.each do |item|
         )
 
     print '.' # progress indicator
-    sleep(1)  # stay below Dynamo free-IOPs limit
+    sleep(2)  # stay below Dynamo free-IOPs limit
 end
 puts ''
 puts 'Done.'
