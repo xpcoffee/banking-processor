@@ -17,7 +17,7 @@ module BankingProcessor
           @config
         end
 
-        def put_transaction(account, year_month, day, amount, balance, description)
+        def put_transaction(account, date, amount, balance, description)
           table = config.transaction_table(account)
           if table.nil?
             fallback_account = config.default_account
@@ -25,11 +25,10 @@ module BankingProcessor
             table = config.transaction_table(fallback_account)
           end
 
-          year = year_month.split('-')[0]
-          zero_padded_month = year_month.split('-')[1].rjust(2, '0')
-          zero_padded_year_month = "#{year}-#{zero_padded_month}"
+          zero_padded_day = date.day.to_s.rjust(2, '0')
+          zero_padded_month = date.month.to_s.rjust(2, '0')
+          zero_padded_year_month = "#{date.year}-#{zero_padded_month}"
 
-          zero_padded_day = day.rjust(2, '0')
 
           params = {
             table_name: table,

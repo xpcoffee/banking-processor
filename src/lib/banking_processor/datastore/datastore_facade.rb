@@ -34,8 +34,8 @@ module BankingProcessor
             datastore.description
         end
 
-        def insert_transaction(account, year_month, day, amount, balance, description)
-            datastore.insert_transaction(account, year_month, day, amount, balance, description)
+        def insert_transaction(account, date, amount, balance, description)
+            datastore.insert_transaction(account, date, amount, balance, description)
         end
 
         def query(statement)

@@ -15,7 +15,7 @@ module BankingProcessor
           @config
         end
 
-        def update_balance(account, year_month, day, balance)
+        def update_balance(account, date, balance)
           table = config.balance_table(account)
           if table.nil?
             fallback_account = config.default_account
@@ -23,16 +23,14 @@ module BankingProcessor
             table = config.balance_table(fallback_account)
           end
 
-          year = year_month.split('-')[0]
+          zero_padded_month = date.month.to_s.rjust(2,'0')
+          zero_padded_day = date.day.to_s.rjust(2,'0')
+          zero_padded_month_day = "#{zero_padded_month}-#{zero_padded_day}"
 
-          zero_padded_month = year_month.split('-')[1].rjust(2,'0')
-          zero_padded_day = day.rjust(2,'0')
-          month_day = "#{zero_padded_month}-#{zero_padded_day}"
-
-          current_balance = get_balance(table, year_month, day)
+          current_balance = get_balance(table, date.year.to_s, zero_padded_month_day)
 
           if ( current_balance.nil? ) || ( balance.to_i < current_balance.to_i )
-            put_balance(table, year, month_day, balance) if current_balance.nil?
+            put_balance(table, date.year.to_s, zero_padded_month_day, balance) if current_balance.nil?
           end
         end
 

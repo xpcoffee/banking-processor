@@ -1,3 +1,4 @@
+require 'date'
 require_relative '../io/file_handler'
 require_relative '../io/preety_output'
 require_relative '../datastore/datastore_facade'
@@ -51,10 +52,7 @@ module BankingProcessor
           data = line.split(config.data_delimiter)
 
           account = config.accounts.keys.first
-          date = data[0].strip
-          date_elements = date.split('-')
-          year_month = "#{date_elements[0]-date_elements[1]}"
-          day = date_elements[2]
+          date = Date.parse(data[0].strip)
 
           amount = data[1].strip
           balance = data[2].strip
@@ -66,7 +64,7 @@ module BankingProcessor
           end
 
           if dryrun
-            puts "#{year_month} #{day} #{account} #{amount} #{balance} #{description}"
+            puts "#{date.year} #{date.month} #{date.day} #{account} #{amount} #{balance} #{description}"
             return
           else
             # Progress indicator
@@ -76,8 +74,7 @@ module BankingProcessor
 
           db.insert_transaction(
             account,
-            year_month,
-            day,
+            date,
             amount,
             balance,
             description

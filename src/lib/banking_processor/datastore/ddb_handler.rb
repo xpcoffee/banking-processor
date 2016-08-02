@@ -42,9 +42,9 @@ module BankingProcessor
       end
 
       # application specific methods
-      def insert_transaction(account, year_month, day, amount, balance, description)
-        transaction_inserter.put_transaction(account, year_month, day, amount, balance, description)
-        balance_inserter.update_balance(account, year_month, day, balance)
+      def insert_transaction(account, date, amount, balance, description)
+        transaction_inserter.put_transaction(account, date, amount, balance, description)
+        balance_inserter.update_balance(account, date, balance)
       end
 
       # generic methods

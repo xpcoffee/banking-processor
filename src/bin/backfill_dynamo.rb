@@ -16,17 +16,13 @@ mysql_data.each do |item|
     next if account.nil?
 
     date = item['date']
-    year_month = "#{date.year}-#{date.month}"
-    day = date.day.to_s
-
     amount = item['amount'].to_f
     balance = item['balance'].to_f
     description = item['description']
 
     datastore.insert_transaction(
         account,
-        year_month,
-        day,
+        date,
         amount,
         balance,
         description
