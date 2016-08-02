@@ -40,6 +40,7 @@ module BankingProcessor
 
         file.for_contents(path) { |line|
           process_line(line)
+          print '.' # Progress indicator
           sleep(2) # Stay below DynamoDB IOPs limit
         }
         puts ''

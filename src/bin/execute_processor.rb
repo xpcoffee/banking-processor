@@ -30,6 +30,6 @@ input = BankingProcessor::Processor::InputProcessor.new(options[:dryrun])
 input.process(file)
 
 # Export to file & S3
-output = BankingProcessor::Processor::OutputProcessor.new(options[:dryrun])
-output.export_balance_data
-output.export_breakdown_data
+#output = BankingProcessor::Processor::OutputProcessor.new(options[:dryrun])
+#output.export_balance_data
+#output.export_breakdown_data

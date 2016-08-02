@@ -1,5 +1,4 @@
 require_relative '../config'
-require_relative 'mysql_handler'
 require_relative 'ddb_handler'
 
 module BankingProcessor
@@ -14,8 +13,6 @@ module BankingProcessor
             case type
             when 'dynamo'
                 @datastore = BankingProcessor::Datastore::DynamoDBHandler.new(config)
-            when 'mysql'
-                @datastore = BankingProcessor::Datastore::MySQLHandler.new(config)
             else
                 STDERR.puts('Unrecognized datastore. Exiting.')
                 Kernel.exit(1)

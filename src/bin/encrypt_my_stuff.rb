@@ -11,16 +11,6 @@ class Encrypter
         @file_handler = BankingProcessor::IO::FileHandler.new
     end
 
-    def encrypt_sql
-        directories = ['balance', 'monthly-breakdown']
-        directories.each do |dir|
-            unencrypted_path = "#{config.unencrypted_sql_root}/#{dir}"
-            encrypted_path = "#{config.sql_root}/#{dir}"
-            files = "*.sql"
-            encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
-        end
-    end
-
     def encrypt_yaml
         unencrypted_path = "#{config.config_root}"
         encrypted_path = "#{config.config_root}"

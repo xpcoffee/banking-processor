@@ -16,14 +16,6 @@ module BankingProcessor
       @config_root ||= File.join(app_root, 'configuration')
     end
 
-    def sql_root
-      @sql_root ||= File.join(app_root, 'src/sql')
-    end
-
-    def unencrypted_sql_root
-      @unencrypted_sql_root ||= File.join(app_root, 'src/unencrypted-sql')
-    end
-
     def output_path
       @output_path ||= File.join(app_root, 'output')
     end
@@ -60,27 +52,6 @@ module BankingProcessor
 
     def datastore
       @datastore ||= config['app']['datastore']
-    end
-
-    # MySQL config
-    def user
-      @user ||= config['mysql']['user']
-    end
-
-    def host
-      @host ||= config['mysql']['host']
-    end
-
-    def pass
-      @pass ||= config['mysql']['pass']
-    end
-
-    def database
-      @database ||= config['mysql']['database']
-    end
-
-    def table
-      @table ||= config['mysql']['table']
     end
 
     # Bank config

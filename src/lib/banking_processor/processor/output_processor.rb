@@ -1,7 +1,6 @@
 require_relative '../config'
 require_relative '../io/file_handler'
 require_relative '../io/preety_output'
-require_relative '../datastore/mysql_handler'
 require_relative '../datastore/s3_handler'
 
 # Queries the datastore and processes the results.
