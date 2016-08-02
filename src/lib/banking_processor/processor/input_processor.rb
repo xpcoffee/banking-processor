@@ -38,7 +38,10 @@ module BankingProcessor
       def process(path)
         preety.heading("Inserting data from #{File.basename(path)} into #{db.description}")
 
-        file.for_contents(path) { |line| process_line(line) }
+        file.for_contents(path) { |line|
+          process_line(line)
+          sleep(2) # Stay below DynamoDB IOPs limit
+        }
         puts ''
 
         puts "Proccessing complete. Processed #{counter} entries."
