@@ -93,11 +93,15 @@ module BankingProcessor
     end
 
     def transaction_table(account)
-      config['accounts'][account]['transactions']
+      account_details = accounts[account]
+      return nil if account_details.nil?
+      @transactions_table = account_details['transactions']
     end
 
     def balance_table(account)
-      config['accounts'][account]['balance']
+      account_details = accounts[account]
+      return nil if account_details.nil?
+      @balance_table = account_details['balance']
     end
 
     # AWS config
@@ -114,6 +118,9 @@ module BankingProcessor
     end
 
     def aws_ca_bundle
+      # This is specifically for Windows, where the Ruby OpenSSL cert
+      # is often not correctly configured:
+      # https://github.com/aws/aws-sdk-core-ruby/issues/166#issuecomment-65868918
       @aws_ca_bundle = "#{config['aws']['ca_bundle']}"
     end
 
