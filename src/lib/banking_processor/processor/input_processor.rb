@@ -63,7 +63,12 @@ module BankingProcessor
           description = data[3].strip
 
           if balance == 0
-            puts "[WARN] Skipping 0 balance entry: #{amount} #{description}"
+            STDERR.puts "[WARN] Skipping 0 balance entry: #{amount} #{description}"
+            return
+          end
+
+          if amount == 0
+            STDERR.puts "[WARN] Skipping 0 amount entry: #{amount} #{description}"
             return
           end
 
