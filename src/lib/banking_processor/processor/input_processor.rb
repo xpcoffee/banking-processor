@@ -50,17 +50,30 @@ module BankingProcessor
         preety.end_section()
       end
 
+      # Process a line (transaction) from the input file.
+      # Extract transaction data and insert it into the datastore.
+      #
+      # The following data is extracted:
+      #   - date
+      #   - balance
+      #   - amount
+      #   - description
       def process_line(line)
 
         if begins_with_date(line)
           data = line.split(config.data_delimiter)
 
-          account = config.accounts.keys.first
-          date = Date.parse(data[0].strip)
+          begin
+            date = Date.parse(data[0].strip)
+            amount = data[1].strip
+            balance = data[2].strip.to_i #strip decimals - the bank has the nasty habit of changing cent values
+            description = data[3].strip
+          rescue => e
+            STDERR.puts "[ERROR] Unable to process line. #{e.class}: #{e.message}"
+            return
+          end
 
-          amount = data[1].strip
-          balance = data[2].strip
-          description = data[3].strip
+          account = config.accounts.keys.first
 
           if balance == 0
             STDERR.puts "[WARN] Skipping 0 balance entry: #{amount} #{description}"
