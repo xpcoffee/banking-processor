@@ -1,6 +1,8 @@
 ## Bank Account Visualizer
-This project provides a collection of tools for storing, processing and visualizing transaction data from a bank-account.<br>
-The output is given on a webpage (report.html), which draws a line graph of balance over time and a stacked column graph showing the breakdown of monthly expenses.
+This project provides a collection of tools for processing and storing transaction data from a bank-account.<br>
+This data is inserted into 2 AWS DynamoDB tables.
+
+In a separate project (currently work-in-progress), these tables are queried by a reporting website in order to generate charts.
 
 ### State of the world
 Below is a flow of the current project state.
