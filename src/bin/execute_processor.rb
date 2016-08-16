@@ -1,6 +1,5 @@
 require 'optparse'
 require_relative '../lib/banking_processor/processor/input_processor'
-require_relative '../lib/banking_processor/processor/output_processor'
 
 options = {}
 OptionParser.new do |opts|
@@ -9,7 +8,7 @@ OptionParser.new do |opts|
         options[:file] = file
     end
 
-    opts.on('-d', '--dryrun', 'operation is dryrun') do
+    opts.on('--dryrun', 'operation is dryrun') do
         options[:dryrun] = true
     end
 
@@ -25,11 +24,6 @@ if (file.nil? || file.empty?)
     exit
 end
 
-# Insert into DB
+# Insert into DynamoDB
 input = BankingProcessor::Processor::InputProcessor.new(options[:dryrun])
 input.process(file)
-
-# Export to file & S3
-#output = BankingProcessor::Processor::OutputProcessor.new(options[:dryrun])
-#output.export_balance_data
-#output.export_breakdown_data
