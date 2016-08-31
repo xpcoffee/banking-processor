@@ -18,19 +18,6 @@ class Encrypter
         encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
     end
 
-    def encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
-        file_handler.for_files("#{unencrypted_path}/#{files}") do |filename|
-            sql_query = File.read(filename)
-            encrypted_query = encryption_handler.encrypt(sql_query)
-
-            output = File.open("#{encrypted_path}/#{File.basename(filename)}.enc", "w")
-            output << encrypted_query
-            output.close
-
-            puts "Encrypted #{File.basename(filename)}"
-        end
-    end
-
     # getters
     def config
         @config
@@ -43,8 +30,22 @@ class Encrypter
     def file_handler
         @file_handler
     end
+
+    private
+
+    def encrypt_files_in_directory(unencrypted_path, encrypted_path, files)
+        file_handler.for_files("#{unencrypted_path}/#{files}") do |filename|
+            file_contents = File.read(filename)
+            encrypted_file_contents = encryption_handler.encrypt(file_contents)
+
+            output = File.open("#{encrypted_path}/#{File.basename(filename)}.enc", "w")
+            output << encrypted_file_contents
+            output.close
+
+            puts "Encrypted #{File.basename(filename)}"
+        end
+    end
 end
 
 encrypter = Encrypter.new
-encrypter.encrypt_sql
 encrypter.encrypt_yaml

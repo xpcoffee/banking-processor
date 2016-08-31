@@ -60,7 +60,7 @@ module BankingProcessor
     end
 
     def default_account
-      @default_account = 'FNB 62206800767'
+      @default_account = accounts['default']
     end
 
     def transaction_table(account)
