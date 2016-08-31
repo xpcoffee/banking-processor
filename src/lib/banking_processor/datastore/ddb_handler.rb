@@ -1,6 +1,6 @@
 require 'aws-sdk'
 require_relative 'dynamodb/balance_inserter'
-require_relative 'dynamodb/transaction_inserter'
+require_relative 'dynamodb/transaction_handler'
 
 module BankingProcessor
   module Datastore
@@ -18,7 +18,7 @@ module BankingProcessor
         )
 
         @balance_inserter = BankingProcessor::Datastore::DynamoDB::BalanceInserter.new(client, config)
-        @transaction_inserter = BankingProcessor::Datastore::DynamoDB::TransactionInserter.new(client, config)
+        @transactions = BankingProcessor::Datastore::DynamoDB::TransactionHandler.new(client, config)
       end
 
       def config
@@ -37,13 +37,13 @@ module BankingProcessor
         @balance_inserter
       end
 
-      def transaction_inserter
-        @transaction_inserter
+      def transactions
+        @transactions
       end
 
       # application specific methods
       def insert_transaction(account, date, amount, balance, description)
-        transaction_inserter.put_transaction(account, date, amount, balance, description)
+        transactions.put_transaction(account, date, amount, balance, description)
         balance_inserter.update_balance(account, date, balance)
       end
 
